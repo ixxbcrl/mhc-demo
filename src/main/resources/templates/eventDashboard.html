@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <title>Click To Edit</title>
+    <style>
+        tr.htmx-swapping td {
+            opacity: 0;
+            transition: opacity 1s ease-out;
+        }
+        .modalform .required:after {
+            content: " *";
+            color: red;
+            font-weight: 100;
+        }
+    </style>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="container alert alert-secondary" role="alert">
+        <p>Add or view events</p>
+    </div>
+
+    <!-- Modal for New Events -->
+    <div class="modal fade" id="newEventModal" tabindex="-1" aria-labelledby="newEventModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newEventModalLabel">Event Form</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body modalform">
+                    <form action="#" th:action="@{/add-event}" th:object="${eventView}" method="post">
+                        <input style="display:none" name = "loggedInUserCompany" class="form-control" type="text" th:value="*{companyName}"/>
+                        <div class="mb-3">
+                            <label for="company-name" class="col-form-label">Vendor Name:</label>
+                            <select name="vendorCompanySelect" class="form-select form-select" aria-label=".form-select-sm example">
+                                <option th:each="vendorCompany: *{vendorCompanies}"
+                                        th:value="${vendorCompany.companyName}"
+                                        th:text="${vendorCompany.companyName}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="proposal-date-1" class="col-form-label required">Proposal date 1:</label>
+                            <div class="input-group date"
+                                 data-date-format="mm-dd-yyyy">
+                                <input class="form-control" type="date" th:field="*{date1}" required/>
+                                <span class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="proposal-date-2" class="col-form-label required">Proposal date 2:</label>
+                            <div class="input-group date"
+                                 data-date-format="mm-dd-yyyy">
+                                <input class="form-control" type="date" th:field="*{date2}" required/>
+                                <span class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="proposal-date-3" class="col-form-label required">Proposal date 3:</label>
+                            <div class="input-group date"
+                                 data-date-format="mm-dd-yyyy">
+                                <input class="form-control" type="date" th:field="*{date3}" required/>
+                                <span class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="proposal-location" class="col-form-label required">Proposal Location:</label>
+                            <input type="text" class="form-control" th:field="*{proposalLocation}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="proposal-event" class="col-form-label">Event:</label>
+                            <select name="eventTypeSelect" class="form-select form-select" aria-label=".form-select-sm example">
+                                    <option th:each="eventTypeSelect: *{eventTypeList}"
+                                            th:value="${eventTypeSelect}"
+                                            th:text="${eventTypeSelect}">
+                                    </option>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" name="action" value="Approve" id="submitNewEvent" class="btn btn-success">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container alert alert-secondary" role="alert">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" sec:authorize="hasAnyAuthority('HR-ADMIN')" data-bs-target="#newEventModal">
+        Add new event
+    </button>
+    </div>
+
+    <div id="eventTable" class="container">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">
+                    Vendor Name </th>
+                <th scope="col">
+                    Proposal Date 1 </th>
+                <th scope="col">
+                    Proposal Date 2 </th>
+                <th scope="col">
+                    Proposal Date 3 </th>
+                <th scope="col">
+                    Confirmed Date </th>
+                <th scope="col">
+                    Proposal Location </th>
+                <th scope="col">
+                    Event Name</th>
+                <th scope="col">
+                    Date Created</th>
+                <th scope="col">
+                    Event Status</th>
+                <th scope="col" class="w-25">
+                    &nbsp; </th>
+            </thead>
+            <tbody id="event-list">
+            <!--/* We build the fragment here binded to "newEvents" */-->
+            <th:block th:fragment="newEvents">
+                <tr th:each="event : ${newEventList}" th:attr="id=${'editModal' + event.eventId}" th:if="${event.createdBy}==${eventView.companyName} or ${event.companyName}==${eventView.companyName}">
+                    <td style="display:none" th:text="${event.eventId}">Event Type</td>
+                    <td th:text="${event.companyName}">Company Name</td>
+                    <td th:text="${event.date1}">First Proposal Date</td>
+                    <td th:text="${event.date2}">Second Proposal Date</td>
+                    <td th:text="${event.date3}">Third Proposal Date</td>
+                    <td th:text="${event.confirmedDate}">Third Proposal Date</td>
+                    <td th:text="${event.proposalLocation}">Proposal Location</td>
+                    <td th:text="${event.eventType}">Event Type</td>
+                    <td th:text="${event.dateCreated}">Date Created</td>
+                    <td th:text="${event.eventStatus}">Event Status</td>
+                    <td>
+                        <button type="button" th:attr="data-target=${'#editModal'+event.eventId}" data-row="${event}" data-bs-toggle="modal" data-bs-target="#exampleModal2" class="btn btn-outline-success">View</button>
+                        <!-- Modal to view and approve/reject Events -->
+                        <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Event Form</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="#" th:action="@{/update-event(new-event=${event.eventId})}" th:object="${event}" method="post">
+                                            <div class="mb-3">
+                                                <label for="company-name" class="col-form-label">Company Name:</label>
+                                                <input type="text" class="form-control" id="company-name" th:value="${event.companyName}" readonly>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="proposal-event" class="col-form-label">Proposed Dates:</label>
+                                                <select name="dateSelect" id="proposal-event1" class="form-select form-select" aria-label=".form-select-sm example">
+                                                    <option th:each="dateSelect: ${event.dates}"
+                                                            th:value="${dateSelect}"
+                                                            th:text="${dateSelect}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="proposal-date-1" class="col-form-label">Proposal date 1:</label>
+                                                <div id="proposal-date-1"
+                                                     class="input-group date"
+                                                     data-date-format="mm-dd-yyyy">
+                                                    <input class="form-control"
+                                                           th:value="${event.date1}"
+                                                           type="date" readonly/>
+                                                    <span class="input-group-addon">
+                                                        <i class="glyphicon glyphicon-calendar"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="proposal-date-2" class="col-form-label">Proposal date 2:</label>
+                                                <div id="proposal-date-2"
+                                                     class="input-group date"
+                                                     data-date-format="mm-dd-yyyy">
+                                                    <input class="form-control"
+                                                           th:value="${event.date2}"
+                                                           type="date" readonly/>
+                                                    <span class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </span>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="proposal-date-3" class="col-form-label">Proposal date 3:</label>
+                                                <div id="proposal-date-3"
+                                                     class="input-group date"
+                                                     data-date-format="mm-dd-yyyy">
+                                                    <input class="form-control"
+                                                           th:value="${event.date3}"
+                                                           type="date" readonly/>
+                                                    <span class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </span>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="proposal-location" class="col-form-label">Proposal Location:</label>
+                                                <input type="text" class="form-control" id="proposal-location" th:value="${event.proposalLocation}" readonly>
+                                            </div>
+                                            <div class="mb-3" sec:authorize="hasAnyAuthority('VENDOR-ADMIN')">
+                                                <label for="proposal-location" class="col-form-label">Remarks:</label>
+                                                <input name="eventRemarks" type="text" class="form-control" id="remarks" th:value="${event.remarks}">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="proposal-event" class="col-form-label">Event Name:</label>
+                                                <select id="proposal-event" class="form-select form-select" aria-label=".form-select-sm example">
+                                                    <option th:text="${event.eventType}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" name="action" th:if="${event.eventStatus=='PENDING'}" value="Reject"  id="rejectButton" sec:authorize="hasAnyAuthority('VENDOR-ADMIN')" class="btn btn-danger">Reject</button>
+                                                <button type="submit" name="action" th:if="${event.eventStatus=='PENDING'}" value="Approved" id="addEventBtn2" sec:authorize="hasAnyAuthority('VENDOR-ADMIN')" class="btn btn-success">Approve</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>
