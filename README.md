@@ -31,14 +31,16 @@ Here's the ERD for the database design as well:
 
 Starting with the login. I have used a script to pre-populate some data in the h2 DB. Below are some users details. All account's passwords are "pwd". 
 
-HR User 1
+```
+HR User 1 
 username: hr1
 
-Vendor User 1
+Vendor User 1 
 username: v1
 
-Vendor User 2
+Vendor User 2 
 username: v2
+```
 
 The login page is displayed as so. Key in the credentials to login:
 ![Login Page](images/login.png)
