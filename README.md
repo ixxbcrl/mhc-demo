@@ -55,27 +55,27 @@ We can also click on the _Add new event_ button to add a new event. Here we fill
 
 We can then click the _Log Out_ button on the top right of the page which would redirect us back to the login page. You should see a message on the top left of the page notifying that you have been logged out.
 This time try logging in with the v1 user (Vendor User 1).
-![Logout](v1-login.png)
+![Logout](images/v1-login.png)
 
 Next we should see the dashboard with 1 event (which is the event we just added with _hr1_ user. As a Vendor, I made the assumption that they should not be able to create events. Hence the _Add new event_ button is hidden. 
-![V1 User Dashboard](v1-dashboard.png)
+![V1 User Dashboard](images/v1-dashboard.png)
 
 We can click the _View_ button to display the event. Here we see that we can approve or reject events. 
-![Vendor views event](vendorviewevent-1.png)
+![Vendor views event](images/vendorviewevent-1.png)
 
 Select a date from the dropdown and enter some remarks if applicable (here is the part I missed to redirect to another pop-up). I will click _Approve_ here after entering a date.
-![Vendor event approved](eventapproved.png)
+![Vendor event approved](images/eventapproved.png)
 
 All users are associated with a _Company_. Hence each user will only be able to see events if either 1 of the following 2 conditions are met:
  - The event is created by the user. 
  - The user belong to the assigned Vendor Company
  
  So here I signed in with HR User 1 (hr1). I create a new event and assign it to Vendor Company 2:
- ![Assign to vendor 2](assignvendor2.png)
- ![Vendor 2 event added to dashboard](dashboard-vendor2.png)
+ ![Assign to vendor 2](images/assignvendor2.png)
+ ![Vendor 2 event added to dashboard](images/dashboard-vendor2.png)
 
 I then log out and log in again with the Vendor Company 1 (v1) user. After that we see that we can only see the single same event in the dashboard, which is what we approved earlier. The event has been assigned to Vendor 2 and will only be visible to a user assigned to the Vendor Company 2.
-![Logout of h1](v1-login-1.png)
-![V1 dashboard with no Vendor Company 2 events](v1onlyevents.png)
+![Logout of h1](images/v1-login-1.png)
+![V1 dashboard with no Vendor Company 2 events](images/v1onlyevents.png)
 
 That's it! Hope that I have demonstrated and met at least most of the requirements. Let me know if you have any further questions/feedback. Happy to receive any thoughts.
